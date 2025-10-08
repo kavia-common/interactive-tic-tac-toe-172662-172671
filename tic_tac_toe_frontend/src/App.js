@@ -1,47 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import './index.css';
+import Board from './components/Board';
+import Scoreboard from './components/Scoreboard';
+import ThemeToggle from './components/ThemeToggle';
+import { useTicTacToe } from './hooks/useTicTacToe';
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
+  /**
+   * Application entry point for Tic-Tac-Toe. Renders the board, status, controls,
+   * scoreboard, and theme toggle with Ocean Professional styling.
+   */
+  const {
+    board,
+    winner,
+    winningLine,
+    isDraw,
+    statusText,
+    handleSquareClick,
+    resetBoard,
+    newMatch,
+    scores,
+  } = useTicTacToe();
 
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  const disabledAll = Boolean(winner || isDraw);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div className="app-root">
+      <header className="app-header">
+        <div className="header-content">
+          <h1 className="title">Tic-Tac-Toe</h1>
+          <ThemeToggle />
+        </div>
+        <div className="banner" aria-hidden="true" />
       </header>
+
+      <main className="main">
+        <section className="game-area">
+          <Scoreboard scores={scores} onNewMatch={newMatch} />
+          <Board
+            board={board}
+            onSquareClick={handleSquareClick}
+            disabledAll={disabledAll}
+            winningLine={winningLine}
+          />
+
+          <div
+            className="status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            data-testid="status-text"
+          >
+            {statusText}
+          </div>
+
+          <div className="controls">
+            <button
+              className="btn"
+              type="button"
+              onClick={resetBoard}
+              aria-label="Reset the current board"
+            >
+              Reset Board
+            </button>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={newMatch}
+              aria-label="Start a new match and update scores"
+            >
+              New Match
+            </button>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
